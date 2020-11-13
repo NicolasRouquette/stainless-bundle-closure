@@ -37,3 +37,9 @@ from simpler ones.
 
 This refactoring eliminates the stainless errors; however,
 without additional annotations, stainless can't verify much about this code.
+
+
+### [v3 commit](https://github.com/NicolasRouquette/stainless-bundle-closure/tree/v3)
+
+Ported more of the original machinery to Scala.
+Next: A Stainless version of the heart of the closure algorithm: [Taxonomy](https://github.com/opencaesar/owl-tools/blob/master/owl-close-world/src/main/java/io/opencaesar/closeworld/Taxonomy.java)

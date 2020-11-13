@@ -64,295 +64,299 @@ sealed trait ClassExpression {
   def union(e: ClassExpression): ClassExpression
 }
 
-case object Universal extends ClassExpression {
-  override def complement(): ClassExpression = {
-    // Theorem 18
-    Empty
-  }
+object ClassExpression {
 
-  override def difference(e: ClassExpression): ClassExpression =
-    Difference(this, e)
-
-  override def intersection(e: ClassExpression): ClassExpression = {
-    // Theorem 14
-    e
-  }
-
-  override def union(e: ClassExpression): ClassExpression = {
-    // Theorem 15
-    Universal
-  }
-}
-
-case object Empty extends ClassExpression {
-  override def complement(): ClassExpression = {
-    // Theorem 17
-    Universal
-  }
-
-  override def difference(e: ClassExpression): ClassExpression = {
-    // Theorem 12
-    Empty
-  }
-
-  override def intersection(e: ClassExpression): ClassExpression = {
-    // Theorem 9
-    Empty
-  }
-
-  override def union(e: ClassExpression): ClassExpression = {
-    // Theorem 10
-    e
-  }
-}
-
-case class Singleton(encapsulated: Int) extends ClassExpression {
-  override def complement(): ClassExpression = Complement(this)
-
-  override def difference(e: ClassExpression): ClassExpression =
-    e match {
-      case Empty =>
-        // Theorem 11
-        this
-      case Universal =>
-        // Theorem 16
-        Empty
-      case _ =>
-        if (this == e) {
-          // Theorem 13
-          Empty
-        } else
-          Difference(this, e)
+  case object Universal extends ClassExpression {
+    override def complement(): ClassExpression = {
+      // Theorem 18
+      Empty
     }
 
-  override def intersection(e: ClassExpression): ClassExpression =
-    if (this == e) {
-      // Theorem 2
-      this
-    } else e match {
-      case Universal =>
-        // Theorem 14
-        this
-      case Empty =>
-        // Theorem 9
-        Empty
-      case _ =>
-        Intersection(Cons(this, Cons(e, Nil())))
+    override def difference(e: ClassExpression): ClassExpression =
+      Difference(this, e)
+
+    override def intersection(e: ClassExpression): ClassExpression = {
+      // Theorem 14
+      e
     }
 
-  override def union(e: ClassExpression): ClassExpression =
-    if (this == e) {
-      // Theorem 5
-      this
-    } else e match {
-      case Universal =>
-        // Theorem 15
-        Universal
-      case Empty =>
-        // Theorem 10
-        this
-      case _ =>
-        Union(Cons(this, Cons(e, Nil())))
+    override def union(e: ClassExpression): ClassExpression = {
+      // Theorem 15
+      Universal
     }
-}
+  }
 
-sealed trait Unary extends ClassExpression
+  case object Empty extends ClassExpression {
+    override def complement(): ClassExpression = {
+      // Theorem 17
+      Universal
+    }
 
-case class Complement(c: ClassExpression) extends Unary {
-  override def complement(): ClassExpression = c
+    override def difference(e: ClassExpression): ClassExpression = {
+      // Theorem 12
+      Empty
+    }
 
-  override def difference(e: ClassExpression): ClassExpression =
-    e match {
-      case Empty =>
-        // Theorem 11
-        this
-      case Universal =>
-        // Theorem 16
-        Empty
-      case _ =>
-        if (this == e) {
-          // Theorem 13
-          Empty
-        } else if (c == e) {
-          // Theorem 19
+    override def intersection(e: ClassExpression): ClassExpression = {
+      // Theorem 9
+      Empty
+    }
+
+    override def union(e: ClassExpression): ClassExpression = {
+      // Theorem 10
+      e
+    }
+  }
+
+  case class Singleton(encapsulated: String) extends ClassExpression {
+    override def complement(): ClassExpression = Complement(this)
+
+    override def difference(e: ClassExpression): ClassExpression =
+      e match {
+        case Empty =>
+          // Theorem 11
           this
-        } else
-          Difference(this, e)
-    }
-
-  override def intersection(e: ClassExpression): ClassExpression =
-    e match {
-      case Empty =>
-        // Theorem 9
-        Empty
-      case Universal =>
-        // Theorem 14
-        this
-      case _ =>
-        if (this == e) {
-          // Theorem 2
-          this
-        } else if (c == e) {
-          // Theorem 20
+        case Universal =>
+          // Theorem 16
           Empty
-        } else
+        case _ =>
+          if (this == e) {
+            // Theorem 13
+            Empty
+          } else
+            Difference(this, e)
+      }
+
+    override def intersection(e: ClassExpression): ClassExpression =
+      if (this == e) {
+        // Theorem 2
+        this
+      } else e match {
+        case Universal =>
+          // Theorem 14
+          this
+        case Empty =>
+          // Theorem 9
+          Empty
+        case _ =>
           Intersection(Cons(this, Cons(e, Nil())))
-    }
+      }
 
-  override def union(e: ClassExpression): ClassExpression =
-    e match {
-      case Empty =>
-        // Theorem 10
+    override def union(e: ClassExpression): ClassExpression =
+      if (this == e) {
+        // Theorem 5
         this
-      case Universal =>
-        // Theorem 15
-        Universal
-      case _ =>
-        if (this == e) {
-          // Theorem 5
-          this
-        } else if (c == e) {
-          // Theorem 21
+      } else e match {
+        case Universal =>
+          // Theorem 15
           Universal
-        } else
+        case Empty =>
+          // Theorem 10
+          this
+        case _ =>
           Union(Cons(this, Cons(e, Nil())))
-    }
-}
+      }
+  }
 
-sealed trait Binary extends ClassExpression {
-  val a, b: ClassExpression
-}
+  sealed trait Unary extends ClassExpression
 
-case class Difference(override val a: ClassExpression,
-                      override val b: ClassExpression) extends Binary {
-  override def complement(): ClassExpression = Complement(this)
+  case class Complement(c: ClassExpression) extends Unary {
+    override def complement(): ClassExpression = c
 
-  override def difference(e: ClassExpression): ClassExpression =
-    e match {
-      case Empty =>
-        // Theorem 11
-        this
-      case Universal =>
-        // Theorem 16
-        Empty
-      case _ =>
-        if (e == this) {
-          // Theorem 13
+    override def difference(e: ClassExpression): ClassExpression =
+      e match {
+        case Empty =>
+          // Theorem 11
+          this
+        case Universal =>
+          // Theorem 16
           Empty
-        } else
-          Difference(this, e)
-    }
+        case _ =>
+          if (this == e) {
+            // Theorem 13
+            Empty
+          } else if (c == e) {
+            // Theorem 19
+            this
+          } else
+            Difference(this, e)
+      }
 
-  override def intersection(e: ClassExpression): ClassExpression =
-    if (this == e) {
-      // Theorem 2
-      this
-    } else e match {
-      case Universal =>
-        // Theorem 14
-        this
-      case Empty =>
-        // Theorem 9
-        Empty
-      case _ =>
-        Intersection(Cons(this, Cons(e, Nil())))
-    }
-
-  override def union(e: ClassExpression): ClassExpression =
-    if (this == e) {
-      // Theorem 5
-      this
-    } else e match {
-      case Universal =>
-        // Theorem 15
-        Universal
-      case Empty =>
-        // Theorem 10
-        this
-      case _ =>
-        Union(Cons(this, Cons(e, Nil())))
-    }
-}
-
-sealed trait Nary extends ClassExpression {
-  val s : List[ClassExpression]
-
-  override def complement(): ClassExpression = Complement(this)
-
-  override def difference(e: ClassExpression): ClassExpression =
-    e match {
-      case Empty =>
-        // Theorem 11
-        this
-      case Universal =>
-        // Theorem 16
-        Empty
-      case _ =>
-        if (e == this) {
-          // Theorem 13
+    override def intersection(e: ClassExpression): ClassExpression =
+      e match {
+        case Empty =>
+          // Theorem 9
           Empty
-        } else
-          Difference(this, e)
-    }
-}
+        case Universal =>
+          // Theorem 14
+          this
+        case _ =>
+          if (this == e) {
+            // Theorem 2
+            this
+          } else if (c == e) {
+            // Theorem 20
+            Empty
+          } else
+            Intersection(Cons(this, Cons(e, Nil())))
+      }
 
-case class Intersection(override val s: List[ClassExpression]) extends Nary {
+    override def union(e: ClassExpression): ClassExpression =
+      e match {
+        case Empty =>
+          // Theorem 10
+          this
+        case Universal =>
+          // Theorem 15
+          Universal
+        case _ =>
+          if (this == e) {
+            // Theorem 5
+            this
+          } else if (c == e) {
+            // Theorem 21
+            Universal
+          } else
+            Union(Cons(this, Cons(e, Nil())))
+      }
+  }
 
-  override def intersection(e: ClassExpression): ClassExpression =
-    if (this == e) {
-      // Theorem 2
-      this
-    } else e match {
-      case Universal =>
-        // Theorem 14
+  sealed trait Binary extends ClassExpression {
+    val a, b: ClassExpression
+  }
+
+  case class Difference(override val a: ClassExpression,
+                        override val b: ClassExpression) extends Binary {
+    override def complement(): ClassExpression = Complement(this)
+
+    override def difference(e: ClassExpression): ClassExpression =
+      e match {
+        case Empty =>
+          // Theorem 11
+          this
+        case Universal =>
+          // Theorem 16
+          Empty
+        case _ =>
+          if (e == this) {
+            // Theorem 13
+            Empty
+          } else
+            Difference(this, e)
+      }
+
+    override def intersection(e: ClassExpression): ClassExpression =
+      if (this == e) {
+        // Theorem 2
         this
-      case Empty =>
-        // Theorem 9
-        Empty
-      case Intersection(t) =>
-        Intersection((s ++ t).unique)
-      case _ =>
-        Intersection(e :: s)
-    }
+      } else e match {
+        case Universal =>
+          // Theorem 14
+          this
+        case Empty =>
+          // Theorem 9
+          Empty
+        case _ =>
+          Intersection(Cons(this, Cons(e, Nil())))
+      }
 
-  override def union(e: ClassExpression): ClassExpression =
-    if (this == e) {
-      // Theorem 5
-      this
-    } else e match {
-      case Universal =>
-        // Theorem 15
-        Universal
-      case Empty =>
-        // Theorem 10
+    override def union(e: ClassExpression): ClassExpression =
+      if (this == e) {
+        // Theorem 5
         this
-      case _ =>
-        Union(Cons(this, Cons(e, Nil())))
-    }
-}
+      } else e match {
+        case Universal =>
+          // Theorem 15
+          Universal
+        case Empty =>
+          // Theorem 10
+          this
+        case _ =>
+          Union(Cons(this, Cons(e, Nil())))
+      }
+  }
 
-case class Union(override val s: List[ClassExpression]) extends Nary {
+  sealed trait Nary extends ClassExpression {
+    val s: List[ClassExpression]
 
-  override def intersection(e: ClassExpression): ClassExpression =
-    if (this == e) {
-      // Theorem 2
-      this
-    } else e match {
-      case Universal =>
-        // Theorem 14
+    override def complement(): ClassExpression = Complement(this)
+
+    override def difference(e: ClassExpression): ClassExpression =
+      e match {
+        case Empty =>
+          // Theorem 11
+          this
+        case Universal =>
+          // Theorem 16
+          Empty
+        case _ =>
+          if (e == this) {
+            // Theorem 13
+            Empty
+          } else
+            Difference(this, e)
+      }
+  }
+
+  case class Intersection(override val s: List[ClassExpression]) extends Nary {
+
+    override def intersection(e: ClassExpression): ClassExpression =
+      if (this == e) {
+        // Theorem 2
         this
-      case Empty =>
-        // Theorem 9
-        Empty
-      case _ =>
-        Intersection(Cons(this, Cons(e, Nil())))
-    }
+      } else e match {
+        case Universal =>
+          // Theorem 14
+          this
+        case Empty =>
+          // Theorem 9
+          Empty
+        case Intersection(t) =>
+          Intersection((s ++ t).unique)
+        case _ =>
+          Intersection(e :: s)
+      }
 
-  override def union(e: ClassExpression): ClassExpression =
-    e match {
-      case Union(u) =>
-        Union((u ++ s).unique)
-      case _ =>
-        Union(e :: s)
-    }
+    override def union(e: ClassExpression): ClassExpression =
+      if (this == e) {
+        // Theorem 5
+        this
+      } else e match {
+        case Universal =>
+          // Theorem 15
+          Universal
+        case Empty =>
+          // Theorem 10
+          this
+        case _ =>
+          Union(Cons(this, Cons(e, Nil())))
+      }
+  }
+
+  case class Union(override val s: List[ClassExpression]) extends Nary {
+
+    override def intersection(e: ClassExpression): ClassExpression =
+      if (this == e) {
+        // Theorem 2
+        this
+      } else e match {
+        case Universal =>
+          // Theorem 14
+          this
+        case Empty =>
+          // Theorem 9
+          Empty
+        case _ =>
+          Intersection(Cons(this, Cons(e, Nil())))
+      }
+
+    override def union(e: ClassExpression): ClassExpression =
+      e match {
+        case Union(u) =>
+          Union((u ++ s).unique)
+        case _ =>
+          Union(e :: s)
+      }
+  }
+
 }

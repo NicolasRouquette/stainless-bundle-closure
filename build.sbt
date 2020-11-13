@@ -6,6 +6,8 @@ lazy val core = project
   .in(file("core"))
   .settings(
     name := "bundle-closure",
+    libraryDependencies += "net.sourceforge.owlapi" % "owlapi-distribution" % "5.1.15",
+    libraryDependencies += "org.jgrapht" % "jgrapht-core" % "1.1.0",
   )
   .dependsOn(verified)
 
